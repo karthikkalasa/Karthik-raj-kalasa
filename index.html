@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Crop Suggestion App</title>
+</head>
+<body>
+    <h1>Crop Suggestion Based on Weather</h1>
+    <input type="text" id="cityInput" placeholder="Enter city name" />
+    <button onclick="suggestCrop()">Suggest Crop</button>
+    <div id="result"></div>
+
+    <script>
+        const apiKey = "57f4960051d42aaea9a8d42feaf2bcf8"; // Your API key
+
+        function suggestCrop() {
+            const city = document.getElementById("cityInput").value.trim();
+            if (!city) {
+                alert("Please enter a city name.");
+                return;
+            }
+
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("City not found");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const temp = data.main.temp;
+                    const humidity = data.main.humidity;
+                    const weather = data.weather[0].main;
+
+                    let crop = "";
+
+                    // Basic crop suggestion logic
+                    if (temp >= 20 && temp <= 30 && humidity >= 50 && humidity <= 70) {
+                        crop = "Rice";
+                    } else if (temp >= 25 && temp <= 35 && humidity < 50) {
+                        crop = "Wheat";
+                    } else if (temp >= 18 && temp <= 27 && humidity >= 60) {
+                        crop = "Sugarcane";
+                    } else if (temp >= 21 && temp <= 30) {
+                        crop = "Maize";
+                    } else {
+                        crop = "No ideal crop suggestion found for this weather. Try checking manually.";
+                    }
+
+                    document.getElementById("result").innerHTML = `
+                        <h2>Weather in ${data.name}</h2>
+                        <p><strong>Condition:</strong> ${weather}</p>
+                        <p><strong>Temperature:</strong> ${temp} °C</p>
+                        <p><strong>Humidity:</strong> ${humidity}%</p>
+                        <h3>Suggested Crop: ${crop}</h3>
+                    `;
+                })
+                .catch(error => {
+                    console.error(error);
+                    document.getElementById("result").innerText = "Could not retrieve data. Try again.";
+                });
+        }
+    </script>
+</body>
+</html>
